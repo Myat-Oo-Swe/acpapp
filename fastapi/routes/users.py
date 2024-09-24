@@ -6,6 +6,10 @@ from database import *
 
 router = APIRouter()
 
+class UserLogin(BaseModel):
+    email: str
+    password_hash: str
+
 # Pydantic model for user creation
 class UserCreate(BaseModel):
     username: str
@@ -28,7 +32,7 @@ class User(BaseModel):
 
 
 # Endpoint to create a new user
-@router.post("/users/", response_model=User)
+@router.post("/users/create", response_model=User)
 async def create_user(user: UserCreate):
     result = await insert_user(user.username, user.password_hash, user.email)
     if result is None:
@@ -58,4 +62,23 @@ async def delete_user_endpoint(user_id: int):
     if result is None:
         raise HTTPException(status_code=404, detail="User not found")
     return {"detail": "User deleted"}
+
+# Endpoint for user login
+@router.post("/users/login")
+async def login_user(user: UserLogin):
+   # Fetch user from the database
+   db_user = await get_user_by_email(user.email,user.password_hash)
+  
+   if db_user is None:
+       raise HTTPException(status_code=404, detail="User not found")
+
+
+   # If login is successful, you can return user info (omit password hash)
+   return {
+       "user_id": db_user.user_id,
+       "username": db_user.username,
+       "email": db_user.email,
+       "created_at": db_user.created_at
+   }
+
 
