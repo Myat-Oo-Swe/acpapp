@@ -2,11 +2,9 @@ import React, { useState } from "react";
 import { TextField, Button, Grid, Typography, Paper, Snackbar, Alert } from '@mui/material';
 import { useRouter } from 'next/router';
 
-export default function RegisterPage() {
-  const [registerName, setRegisterName] = useState('');
-  const [registerEmail, setRegisterEmail] = useState('');
-  const [registerPassword, setRegisterPassword] = useState('');
-  const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+export default function LoginPage() {
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -17,40 +15,32 @@ export default function RegisterPage() {
     setOpenSnackbar(false);
   };
 
-  const handleRegisterSubmit = async (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    if (registerPassword !== registerConfirmPassword) {
-      setSnackbarMessage('Passwords do not match');
-      setSnackbarSeverity('error');
-      setOpenSnackbar(true);
-      return;
-    }
-
     try {
-      const response = await fetch('/api/users/create', {
+      const response = await fetch('/api/users/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: registerName,
-          email: registerEmail,
-          password_hash: registerPassword,
+          email: loginEmail,
+          password_hash: loginPassword,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || 'Registration failed');
+        throw new Error(errorData.detail || 'Login failed');
       }
 
       const data = await response.json();
-      setSnackbarMessage('Registration successful!');
+      setSnackbarMessage('Login successful!');
       setSnackbarSeverity('success');
       setOpenSnackbar(true);
 
-      // Redirect to the log in page upon successful registration
-      //router.push('/login');
+      // Redirect to the home page upon successful login
+      router.push('/home');
     } catch (error) {
       setSnackbarMessage(error.message);
       setSnackbarSeverity('error');
@@ -63,25 +53,17 @@ export default function RegisterPage() {
       <Grid item xs={12} sm={6}>
         <Paper elevation={3} style={{ padding: '20px' }}>
           <Typography variant="h5" gutterBottom>
-            Register
+            Login
           </Typography>
-          <form onSubmit={handleRegisterSubmit}>
-            <TextField
-              fullWidth
-              label="Name"
-              variant="outlined"
-              margin="normal"
-              value={registerName}
-              onChange={(e) => setRegisterName(e.target.value)}
-            />
+          <form onSubmit={handleLoginSubmit}>
             <TextField
               fullWidth
               label="Email"
               variant="outlined"
               margin="normal"
               type="email"
-              value={registerEmail}
-              onChange={(e) => setRegisterEmail(e.target.value)}
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
             />
             <TextField
               fullWidth
@@ -89,24 +71,15 @@ export default function RegisterPage() {
               variant="outlined"
               margin="normal"
               type="password"
-              value={registerPassword}
-              onChange={(e) => setRegisterPassword(e.target.value)}
-            />
-            <TextField
-              fullWidth
-              label="Confirm Password"
-              variant="outlined"
-              margin="normal"
-              type="password"
-              value={registerConfirmPassword}
-              onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
             />
             <Button variant="contained" color="primary" fullWidth style={{ marginTop: '16px' }} type="submit">
-              Register
+              Login
             </Button>
           </form>
           <Typography style={{ marginTop: '16px', textAlign: 'center' }}>
-            Already have an account? <Button color="primary" onClick={() => router.push('/login')}>Login</Button>
+            Don't have an account? <Button color="primary" onClick={() => router.push('/register')}>Register</Button>
           </Typography>
         </Paper>
       </Grid>

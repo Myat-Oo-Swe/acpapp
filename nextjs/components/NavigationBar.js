@@ -22,7 +22,7 @@ const NavigationLayout = ({ children }) => {
 
   return (
     <>
-      <AppBar position="sticky" sx={{ backgroundColor: "#ff5e15" }}>
+      <AppBar position="sticky" sx={{ backgroundColor: "#87A2FF" }}>
         <Toolbar>
           <Link href={"/"}>
             <FunctionsIcon sx={{ color: "#ffffff" }} fontSize="large" />
@@ -38,7 +38,8 @@ const NavigationLayout = ({ children }) => {
             }}>
             {appName}
           </Typography>
-          <NavigationLink href="/page1" label="Page1" />
+          <NavigationLink href="/home" label="home" />
+          <NavigationLink href="/books" label="books" />
           <div style={{ flexGrow: 1 }} />
           <Button
             color="#ffffff"

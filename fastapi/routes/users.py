@@ -3,6 +3,8 @@ from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 from database import *
+from typing import List, Optional
+
 
 router = APIRouter()
 
@@ -80,5 +82,14 @@ async def login_user(user: UserLogin):
        "email": db_user.email,
        "created_at": db_user.created_at
    }
+
+# Endpoint to get all users
+@router.get("/users", response_model=List[User])
+async def get_all_users():
+    result = await get_all_users_from_db()  # A function you should add to interact with the database
+    if not result:
+        raise HTTPException(status_code=404, detail="No users found")
+    return result
+
 
 
