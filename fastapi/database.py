@@ -115,5 +115,19 @@ async def delete_book(book_id: int):
 
 # Function to get all books from the books table
 async def get_all_books_from_db():
-    query = "SELECT * FROM books"
+    query = """
+    SELECT b.book_id, b.book_name, b.book_quantity, b.book_description, b.book_pic, g.genre_name
+    FROM books b
+    LEFT JOIN genre g ON b.genre_id = g.genre_id;
+    """
     return await database.fetch_all(query)
+
+# Function to get all genres from the genre table
+async def get_all_genres_from_db():
+    query = """
+    SELECT genre_id, genre_name, genre_description
+    FROM genre;
+    """
+    return await database.fetch_all(query)
+
+

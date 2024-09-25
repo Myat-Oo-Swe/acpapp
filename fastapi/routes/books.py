@@ -27,6 +27,7 @@ class Book(BaseModel):
     book_quantity: int
     book_description: Optional[str]
     book_pic: Optional[str]
+    genre_name: Optional[str]  # Add genre name
 
 # Endpoint to create a new book
 @router.post("/books/create", response_model=Book)

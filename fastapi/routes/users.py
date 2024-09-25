@@ -4,6 +4,7 @@ from typing import Optional
 from datetime import datetime
 from database import *
 from typing import List, Optional
+from routes.password_cypher import encrypt, decrypt
 
 
 router = APIRouter()
@@ -36,7 +37,8 @@ class User(BaseModel):
 # Endpoint to create a new user
 @router.post("/users/create", response_model=User)
 async def create_user(user: UserCreate):
-    result = await insert_user(user.username, user.password_hash, user.email)
+    # hashed_password = encrypt(user.password_hash)
+    result = await insert_user(user.username, encrypt(user.password_hash), user.email)
     if result is None:
         raise HTTPException(status_code=400, detail="Error creating user")
     return result
@@ -68,20 +70,23 @@ async def delete_user_endpoint(user_id: int):
 # Endpoint for user login
 @router.post("/users/login")
 async def login_user(user: UserLogin):
-   # Fetch user from the database
-   db_user = await get_user_by_email(user.email,user.password_hash)
-  
-   if db_user is None:
-       raise HTTPException(status_code=404, detail="User not found")
+    # Fetch user from the database
+    db_user = await get_user_by_email(user.email, encrypt(user.password_hash))
 
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
 
-   # If login is successful, you can return user info (omit password hash)
-   return {
-       "user_id": db_user.user_id,
-       "username": db_user.username,
-       "email": db_user.email,
-       "created_at": db_user.created_at
-   }
+    # Compare the stored hashed password with the provided password
+    if db_user.password_hash != encrypt(user.password_hash):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+
+    # If login is successful, you can return user info (omit password hash)
+    return {
+        "user_id": db_user.user_id,
+        "username": db_user.username,
+        "email": db_user.email,
+        "created_at": db_user.created_at,
+    }
 
 # Endpoint to get all users
 @router.get("/users", response_model=List[User])
