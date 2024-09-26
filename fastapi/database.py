@@ -65,68 +65,81 @@ async def get_all_users_from_db():
     query = "SELECT * FROM users"
     return await database.fetch_all(query)
 
-
 # -------------------- BOOK OPERATIONS --------------------
 
-# Function to insert a new book into the books table
-async def insert_book(book_name: str, book_quantity: int, book_description: Optional[str], book_pic: Optional[str]):
+# Function to insert a new book into the books table with genre_id
+async def insert_book(book_name: str, book_quantity: int, book_description: Optional[str], book_pic: Optional[str], genre_id: Optional[int]):
     query = """
-    INSERT INTO books (book_name, book_quantity, book_description, book_pic)
-    VALUES (:book_name, :book_quantity, :book_description, :book_pic)
-    RETURNING book_id, book_name, book_quantity, book_description, book_pic
+    INSERT INTO books (book_name, book_quantity, book_description, book_pic, genre_id)
+    VALUES (:book_name, :book_quantity, :book_description, :book_pic, :genre_id)
+    RETURNING book_id, book_name, book_quantity, book_description, book_pic, genre_id
     """
     values = {
         "book_name": book_name,
         "book_quantity": book_quantity,
         "book_description": book_description,
-        "book_pic": book_pic
+        "book_pic": book_pic,
+        "genre_id": genre_id
     }
     return await database.fetch_one(query=query, values=values)
 
-# Function to select a book by book_id from the books table
+# Function to select a book by book_id from the books table with genre details
 async def get_book(book_id: int):
-    query = "SELECT * FROM books WHERE book_id = :book_id"
+    query = """
+    SELECT b.book_id, b.book_name, b.book_quantity, b.book_description, b.book_pic, b.genre_id, g.genre_name
+    FROM books b
+    LEFT JOIN genre g ON b.genre_id = g.genre_id
+    WHERE b.book_id = :book_id
+    """
     return await database.fetch_one(query=query, values={"book_id": book_id})
 
-# Function to update a book in the books table
-async def update_book(book_id: int, book_name: Optional[str], book_quantity: Optional[int], book_description: Optional[str], book_pic: Optional[str]):
+# Function to update a book in the books table, including genre_id
+async def update_book(book_id: int, book_name: Optional[str], book_quantity: Optional[int], book_description: Optional[str], book_pic: Optional[str], genre_id: Optional[int]):
     query = """
     UPDATE books
     SET book_name = COALESCE(:book_name, book_name), 
         book_quantity = COALESCE(:book_quantity, book_quantity), 
         book_description = COALESCE(:book_description, book_description), 
-        book_pic = COALESCE(:book_pic, book_pic)
+        book_pic = COALESCE(:book_pic, book_pic),
+        genre_id = COALESCE(:genre_id, genre_id)
     WHERE book_id = :book_id
-    RETURNING book_id, book_name, book_quantity, book_description, book_pic
+    RETURNING book_id, book_name, book_quantity, book_description, book_pic, genre_id
     """
     values = {
         "book_id": book_id,
         "book_name": book_name,
         "book_quantity": book_quantity,
         "book_description": book_description,
-        "book_pic": book_pic
+        "book_pic": book_pic,
+        "genre_id": genre_id
     }
     return await database.fetch_one(query=query, values=values)
 
-# Function to delete a book from the books table
-async def delete_book(book_id: int):
-    query = "DELETE FROM books WHERE book_id = :book_id RETURNING *"
-    return await database.fetch_one(query=query, values={"book_id": book_id})
-
-# Function to get all books from the books table
+# Function to get all books from the books table along with genre details
 async def get_all_books_from_db():
     query = """
-    SELECT b.book_id, b.book_name, b.book_quantity, b.book_description, b.book_pic, g.genre_name
+    SELECT b.book_id, b.book_name, b.book_quantity, b.book_description, b.book_pic, b.genre_id, g.genre_name
     FROM books b
     LEFT JOIN genre g ON b.genre_id = g.genre_id;
     """
     return await database.fetch_all(query)
+
+
+# -------------------- GENRE OPERATIONS --------------------
 
 # Function to get all genres from the genre table
 async def get_all_genres_from_db():
     query = """
     SELECT genre_id, genre_name, genre_description
     FROM genre;
+    """
+    return await database.fetch_all(query)
+
+async def get_genres_with_books_from_db():
+    query = """
+    SELECT g.genre_id, g.genre_name, g.genre_description, b.book_id, b.book_name
+    FROM genre g
+    LEFT JOIN books b ON g.genre_id = b.genre_id
     """
     return await database.fetch_all(query)
 

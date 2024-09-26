@@ -12,6 +12,7 @@ class BookCreate(BaseModel):
     book_quantity: Optional[int] = 0
     book_description: Optional[str]
     book_pic: Optional[str]
+    genre_id: Optional[int]  # New field for genre
 
 # Pydantic model for book update
 class BookUpdate(BaseModel):
@@ -19,6 +20,7 @@ class BookUpdate(BaseModel):
     book_quantity: Optional[int]
     book_description: Optional[str]
     book_pic: Optional[str]
+    genre_id: Optional[int]  # New field for genre
 
 # Pydantic model for book response
 class Book(BaseModel):
@@ -27,12 +29,13 @@ class Book(BaseModel):
     book_quantity: int
     book_description: Optional[str]
     book_pic: Optional[str]
-    genre_name: Optional[str]  # Add genre name
+    genre_id: Optional[int]  # New field for genre
+    genre_name: Optional[str]  # To display the genre name
 
 # Endpoint to create a new book
 @router.post("/books/create", response_model=Book)
 async def create_book(book: BookCreate):
-    result = await insert_book(book.book_name, book.book_quantity, book.book_description, book.book_pic)
+    result = await insert_book(book.book_name, book.book_quantity, book.book_description, book.book_pic, book.genre_id)
     if result is None:
         raise HTTPException(status_code=400, detail="Error creating book")
     return result
@@ -48,7 +51,7 @@ async def read_book(book_id: int):
 # Endpoint to update a book
 @router.put("/books/{book_id}", response_model=Book)
 async def update_book(book_id: int, book: BookUpdate):
-    result = await update_book(book_id, book.book_name, book.book_quantity, book.book_description, book.book_pic)
+    result = await update_book(book_id, book.book_name, book.book_quantity, book.book_description, book.book_pic, book.genre_id)
     if result is None:
         raise HTTPException(status_code=404, detail="Book not found")
     return result
