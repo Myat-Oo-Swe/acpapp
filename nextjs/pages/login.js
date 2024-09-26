@@ -17,6 +17,15 @@ export default function LoginPage() {
 
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
+
+    // Client-side validation
+    if (loginEmail.trim() === "" || loginPassword.trim() === "") {
+      setSnackbarMessage('Both email and password are required!');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+      return; // Prevent submission if fields are empty
+    }
+
     try {
       const response = await fetch('/api/users/login', {
         method: 'POST',
@@ -39,8 +48,10 @@ export default function LoginPage() {
       setSnackbarSeverity('success');
       setOpenSnackbar(true);
 
-      // Redirect to the home page upon successful login
-      router.push('/home');
+      // Delay the redirection to allow the user to see the success message
+      setTimeout(() => {
+        router.push('/home');
+      }, 2000); // Redirect after 2 seconds
     } catch (error) {
       setSnackbarMessage(error.message);
       setSnackbarSeverity('error');
@@ -64,6 +75,7 @@ export default function LoginPage() {
               type="email"
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
+              required // Ensures browser validation is applied
             />
             <TextField
               fullWidth
@@ -73,6 +85,7 @@ export default function LoginPage() {
               type="password"
               value={loginPassword}
               onChange={(e) => setLoginPassword(e.target.value)}
+              required // Ensures browser validation is applied
             />
             <Button variant="contained" color="primary" fullWidth style={{ marginTop: '16px' }} type="submit">
               Login
