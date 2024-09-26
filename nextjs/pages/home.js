@@ -45,7 +45,7 @@ const HomePage = () => {
   useEffect(() => {
     const fetchGenres = async () => {
       try {
-        const response = await axios.get('api/genres'); // Adjust this URL as per your setup
+        const response = await axios.get('api/genres-with-books'); // Adjust this URL as per your setup
         setGenres(response.data); // Store the fetched genres
         const initialOpenState = {};
         response.data.forEach((genre) => {
@@ -90,9 +90,18 @@ const HomePage = () => {
                 </ListItem>
                 <Collapse in={openGenres[genre.genre_name]} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
-                    <ListItem>
-                      <ListItemText inset primary={genre.genre_description} />
-                    </ListItem>
+                    {/* Display book names under each genre */}
+                    {genre.books.length > 0 ? (
+                      genre.books.map((book) => (
+                        <ListItem key={book.book_id}>
+                          <ListItemText inset primary={book.book_name} />
+                        </ListItem>
+                      ))
+                    ) : (
+                      <ListItem>
+                        <ListItemText inset primary="No books available" />
+                      </ListItem>
+                    )}
                   </List>
                 </Collapse>
               </React.Fragment>
