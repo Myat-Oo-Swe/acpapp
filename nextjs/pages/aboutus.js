@@ -13,9 +13,9 @@ export default function AboutUs() {
             <Box sx={{ position: 'relative', textAlign: 'center' }}>
               <CardMedia
                 component="img"
-                image="/logo.png" // Update to your actual logo path
-                alt="RAI Logo"
-                sx={{ maxWidth: '100%' }}
+                image="/logo.jpg" // Update to your actual logo path
+                alt="Dracarys logo"
+                sx={{ maxWidth: '90%' }}
               />
             </Box>
           </Grid>
@@ -27,12 +27,11 @@ export default function AboutUs() {
                 About Us
               </Typography>
               <Typography variant="body1" color="textSecondary" paragraph>
-                At RAI, we believe that luxury should be accessible to everyone. Our mission is to provide a seamless rental
-                experience for the finest luxury brands, allowing you to enjoy high-end products without the long-term commitment.
+              Welcome to Dracarys Library, your digital gateway to a world of knowledge and imagination! Developed by two passionate Robotics and AI Engineering students, Matthew and San, Dracarys Library was born from a love of technology and a desire to make reading more accessible.
               </Typography>
               <Typography variant="body1" color="textSecondary" paragraph>
-                Whether for a special occasion or to elevate your everyday style, we offer a curated selection of exclusive items
-                to help you make a statement, effortlessly.
+              Our platform allows you to easily browse and borrow online books, giving you the freedom to explore new genres, dive into research, or lose yourself in a novel—all from the comfort of your own device. Whether you're a casual reader or a dedicated book lover, Dracarys Library is here to ignite your curiosity and fuel your learning journey.
+              Discover, Learn, Grow with us as you embark on a limitless adventure through books!
               </Typography>
             </Box>
           </Grid>
@@ -41,9 +40,7 @@ export default function AboutUs() {
         {/* Bottom Section - Rent, Experience, Repeat */}
         <Box sx={{ textAlign: 'center', mt: 8 }}>
           <Typography variant="h3" gutterBottom>
-            Rent, <br />
-            Experience, <br />
-            Repeat.
+          Discover, Learn, Grow
           </Typography>
         </Box>
       </Container>

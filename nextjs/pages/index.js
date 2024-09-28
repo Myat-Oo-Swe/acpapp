@@ -23,7 +23,7 @@ function Home() {
         >
           <Typography variant="h4">Dracarys Library</Typography>
           <Image 
-            src="/Untitled design.png" // Ensure this path is correct
+            src="/Untitled design.png"
             alt="Descriptive Alt Text" 
             width={200}
             height={200}
