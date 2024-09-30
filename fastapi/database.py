@@ -94,14 +94,31 @@ async def get_book(book_id: int):
     return await database.fetch_one(query=query, values={"book_id": book_id})
 
 # Function to update a book in the books table, including genre_id
-async def update_book(book_id: int, book_name: Optional[str], book_quantity: Optional[int], book_description: Optional[str], book_pic: Optional[str], genre_id: Optional[int]):
+# async def update_book(book_id: int, book_name: Optional[str], book_quantity: Optional[int], book_description: Optional[str], book_pic: Optional[str], genre_id: Optional[int]):
+#     query = """
+#     UPDATE books
+#     SET book_name = COALESCE(:book_name, book_name), 
+#         book_quantity = COALESCE(:book_quantity, book_quantity), 
+#         book_description = COALESCE(:book_description, book_description), 
+#         book_pic = COALESCE(:book_pic, book_pic),
+#         genre_id = COALESCE(:genre_id, genre_id)
+#     WHERE book_id = :book_id
+#     RETURNING book_id, book_name, book_quantity, book_description, book_pic, genre_id
+#     """
+#     values = {
+#         "book_id": book_id,
+#         "book_name": book_name,
+#         "book_quantity": book_quantity,
+#         "book_description": book_description,
+#         "book_pic": book_pic,
+#         "genre_id": genre_id
+#     }
+#     return await database.fetch_one(query=query, values=values)
+
+async def update_book(book_id: int, book_name: str, book_quantity: Optional[int], book_description: Optional[str], book_pic: Optional[str], genre_id: Optional[int]):
     query = """
-    UPDATE books
-    SET book_name = COALESCE(:book_name, book_name), 
-        book_quantity = COALESCE(:book_quantity, book_quantity), 
-        book_description = COALESCE(:book_description, book_description), 
-        book_pic = COALESCE(:book_pic, book_pic),
-        genre_id = COALESCE(:genre_id, genre_id)
+    UPDATE books 
+    SET book_name = :book_name, book_quantity = :book_quantity, book_description = :book_description, book_pic =:book_pic, genre_id = :genre_id
     WHERE book_id = :book_id
     RETURNING book_id, book_name, book_quantity, book_description, book_pic, genre_id
     """
@@ -114,6 +131,16 @@ async def update_book(book_id: int, book_name: Optional[str], book_quantity: Opt
         "genre_id": genre_id
     }
     return await database.fetch_one(query=query, values=values)
+
+
+
+
+# Function to delete a user from the users table
+async def delete_book(book_id: int):
+    query = "DELETE FROM books WHERE book_id = :book_id RETURNING *"
+    return await database.fetch_one(query=query, values={"book_id": book_id})
+
+
 
 # Function to get all books from the books table along with genre details
 async def get_all_books_from_db():

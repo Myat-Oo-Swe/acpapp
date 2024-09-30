@@ -1,7 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 from typing import List
 from database import *
+import logging
 
 router = APIRouter()
 
@@ -32,8 +33,7 @@ async def get_all_genres():
         raise HTTPException(status_code=404, detail="No genres found")
     return result
 
-from pydantic import ValidationError
-import logging
+
 
 # Add a logger
 logger = logging.getLogger("uvicorn.error")
