@@ -9,7 +9,7 @@ router = APIRouter()
 # Pydantic model for book creation
 class BookCreate(BaseModel):
     book_name: str
-    book_quantity: Optional[int] = 0
+    book_quantity: Optional[int] 
     book_description: Optional[str]
     book_pic: Optional[str]
     genre_id: Optional[int]  # New field for genre
@@ -18,6 +18,7 @@ class BookCreate(BaseModel):
 class BookUpdate(BaseModel):
     book_name: str
     book_quantity: Optional[int]
+    available_quantity: Optional[int]
     book_description: Optional[str]
     book_pic: Optional[str]
     genre_id: Optional[int]  # New field for genre
@@ -27,6 +28,7 @@ class Book(BaseModel):
     book_id: int
     book_name: str
     book_quantity: Optional[int]
+    available_quantity: Optional[int]
     book_description: Optional[str]
     book_pic: Optional[str]
     genre_id: Optional[int]  # New field for genre
@@ -51,7 +53,7 @@ async def read_book(book_id: int):
 # Endpoint to update a book
 @router.put("/books/{book_id}", response_model=BookUpdate)
 async def update_book_endpoint(book_id: int, book: BookUpdate):
-    result = await update_book(book_id, book.book_name, book.book_quantity, book.book_description, book.book_pic, book.genre_id)
+    result = await update_book(book_id, book.book_name, book.book_quantity,book.available_quantity, book.book_description, book.book_pic, book.genre_id)
     if result is None:
         raise HTTPException(status_code=404, detail="Book not found")
     return result

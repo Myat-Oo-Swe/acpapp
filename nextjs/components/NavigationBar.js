@@ -46,10 +46,13 @@ const NavigationLayout = ({ children }) => {
           {/* Left section: Logo */}
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <img
-              src="/logo.png" // Change this to your logo path
+              src="/favicon.png" // Change this to your logo path
               alt="RA Logo"
               style={{ height: '40px', marginRight: '10px' }}
             />
+              <Typography variant="h6" component="div" sx={{ fontWeight: 'bold', color: 'black' }}>
+                Dracarys Library
+              </Typography>
           </Box>
 
           {/* Middle section: Centered Links */}

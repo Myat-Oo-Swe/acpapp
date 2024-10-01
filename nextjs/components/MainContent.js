@@ -37,7 +37,7 @@ const MainContent = ({ filteredBooks }) => {
                     {book.book_name}
                   </Typography>
                   <Typography variant="body2" align="center" sx={{ color: '#888' }}>
-                    Available: {book.book_quantity}
+                    Available: {book.available_quantity}
                   </Typography>
                   <Typography variant="body2" align="center" sx={{ color: '#888' }}>
                     {book.genre_name}  {/* Display the genre */}

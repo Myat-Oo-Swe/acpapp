@@ -1,5 +1,6 @@
 from databases import Database
 from typing import Optional
+from datetime import datetime
 
 # Configuration for Database connection
 POSTGRES_USER = "temp"
@@ -69,10 +70,11 @@ async def get_all_users_from_db():
 
 # Function to insert a new book into the books table with genre_id
 async def insert_book(book_name: str, book_quantity: int, book_description: Optional[str], book_pic: Optional[str], genre_id: Optional[int]):
+
     query = """
-    INSERT INTO books (book_name, book_quantity, book_description, book_pic, genre_id)
-    VALUES (:book_name, :book_quantity, :book_description, :book_pic, :genre_id)
-    RETURNING book_id, book_name, book_quantity, book_description, book_pic, genre_id
+    INSERT INTO books (book_name, book_quantity, book_description, book_pic, genre_id, available_quantity)
+    VALUES (:book_name, :book_quantity, :book_description, :book_pic, :genre_id, :book_quantity)
+    RETURNING book_id, book_name, book_quantity, available_quantity, book_description, book_pic, genre_id
     """
     values = {
         "book_name": book_name,
@@ -86,7 +88,7 @@ async def insert_book(book_name: str, book_quantity: int, book_description: Opti
 # Function to select a book by book_id from the books table with genre details
 async def get_book(book_id: int):
     query = """
-    SELECT b.book_id, b.book_name, b.book_quantity, b.book_description, b.book_pic, b.genre_id, g.genre_name
+    SELECT b.book_id, b.book_name, b.book_quantity, b.available_quantity, b.book_description, b.book_pic, b.genre_id, g.genre_name
     FROM books b
     LEFT JOIN genre g ON b.genre_id = g.genre_id
     WHERE b.book_id = :book_id
@@ -115,17 +117,18 @@ async def get_book(book_id: int):
 #     }
 #     return await database.fetch_one(query=query, values=values)
 
-async def update_book(book_id: int, book_name: str, book_quantity: Optional[int], book_description: Optional[str], book_pic: Optional[str], genre_id: Optional[int]):
+async def update_book(book_id: int, book_name: str, book_quantity: Optional[int], available_quantity: Optional[int], book_description: Optional[str], book_pic: Optional[str], genre_id: Optional[int]):
     query = """
     UPDATE books 
-    SET book_name = :book_name, book_quantity = :book_quantity, book_description = :book_description, book_pic =:book_pic, genre_id = :genre_id
+    SET book_name = :book_name, book_quantity = :book_quantity, available_quantity = :available_quantity, book_description = :book_description, book_pic =:book_pic, genre_id = :genre_id
     WHERE book_id = :book_id
-    RETURNING book_id, book_name, book_quantity, book_description, book_pic, genre_id
+    RETURNING book_id, book_name, book_quantity, available_quantity, book_description, book_pic, genre_id
     """
     values = {
         "book_id": book_id,
         "book_name": book_name,
         "book_quantity": book_quantity,
+        "available_quantity": available_quantity,
         "book_description": book_description,
         "book_pic": book_pic,
         "genre_id": genre_id
@@ -145,7 +148,7 @@ async def delete_book(book_id: int):
 # Function to get all books from the books table along with genre details
 async def get_all_books_from_db():
     query = """
-    SELECT b.book_id, b.book_name, b.book_quantity, b.book_description, b.book_pic, b.genre_id, g.genre_name
+    SELECT b.book_id, b.book_name, b.book_quantity,b.available_quantity, b.book_description, b.book_pic, b.genre_id, g.genre_name
     FROM books b
     LEFT JOIN genre g ON b.genre_id = g.genre_id;
     """
@@ -171,3 +174,59 @@ async def get_genres_with_books_from_db():
     return await database.fetch_all(query)
 
 
+# Function to insert a new borrow into the borrows table
+async def insert_borrow(user_id: int, book_id: int, borrow_quantity: int):
+    query = """
+    INSERT INTO borrow (user_id, book_id, borrow_quantity)
+    VALUES (:user_id, :book_id, :borrow_quantity)
+    RETURNING borrow_id, user_id, book_id, borrow_quantity, borrow_date, return_date
+    """
+    values = {"user_id": user_id, "book_id": book_id, "borrow_quantity": borrow_quantity}
+    return await database.fetch_one(query=query, values=values)
+
+# Function to update the return date of a borrow by borrow_id
+async def update_borrow_return_date(borrow_id: int, return_date: Optional[datetime]):
+    query = """
+    UPDATE borrow 
+    SET return_date = :return_date
+    WHERE borrow_id = :borrow_id
+    RETURNING borrow_id, user_id, book_id, borrow_quantity, borrow_date, return_date
+    """
+    values = {"borrow_id": borrow_id, "return_date": return_date}
+    return await database.fetch_one(query=query, values=values)
+
+
+# Function to select a borrow by borrow_id
+async def get_borrow(borrow_id: int):
+    query = "SELECT * FROM borrow WHERE borrow_id = :borrow_id"
+    return await database.fetch_one(query=query, values={"borrow_id": borrow_id})
+
+# Function to delete a borrow by borrow_id
+async def delete_borrow(borrow_id: int):
+    query = "DELETE FROM borrow WHERE borrow_id = :borrow_id RETURNING *"
+    return await database.fetch_one(query=query, values={"borrow_id": borrow_id})
+
+# Function to get all borrows
+async def get_all_borrows_from_db():
+    query = "SELECT * FROM borrow"
+    return await database.fetch_all(query)
+
+async def update_book_quantity_on_borrow(book_id: int, borrow_quantity: int):
+    query = """
+    UPDATE books
+    SET available_quantity = available_quantity - :borrow_quantity
+    WHERE book_id = :book_id AND available_quantity >= :borrow_quantity
+    RETURNING available_quantity
+    """
+    values = {"book_id": book_id, "borrow_quantity": borrow_quantity}
+    return await database.fetch_one(query=query, values=values)
+
+async def update_book_quantity_on_return(book_id: int, borrow_quantity: int):
+    query = """
+    UPDATE books
+    SET available_quantity = available_quantity + :borrow_quantity
+    WHERE book_id = :book_id
+    RETURNING available_quantity
+    """
+    values = {"book_id": book_id, "borrow_quantity": borrow_quantity}
+    return await database.fetch_one(query=query, values=values)

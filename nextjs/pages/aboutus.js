@@ -30,7 +30,7 @@ export default function AboutUs() {
               Welcome to Dracarys Library, your digital gateway to a world of knowledge and imagination! Developed by two passionate Robotics and AI Engineering students, Matthew and San, Dracarys Library was born from a love of technology and a desire to make reading more accessible.
               </Typography>
               <Typography variant="body1" color="textSecondary" paragraph>
-              Our platform allows you to easily browse and borrow online books, giving you the freedom to explore new genres, dive into research, or lose yourself in a novel—all from the comfort of your own device. Whether you're a casual reader or a dedicated book lover, Dracarys Library is here to ignite your curiosity and fuel your learning journey.
+              Our platform allows you to easily browse and borrow books online, giving you the freedom to explore new genres, dive into research, or lose yourself in a novel—all from the comfort of your own device. Whether you're a casual reader or a dedicated book lover, Dracarys Library is here to ignite your curiosity and fuel your learning journey.
               Discover, Learn, Grow with us as you embark on a limitless adventure through books!
               </Typography>
             </Box>

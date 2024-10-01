@@ -80,29 +80,38 @@ const BookList = () => {
     }
   };
 
-  // Increase book quantity
-  const handleIncreaseQuantity = async (book) => {
+  /// Increase book quantity (affects both book_quantity and available_quantity)
+const handleIncreaseQuantity = async (book) => {
+  try {
+    const updatedBook = {
+      ...book,
+      book_quantity: book.book_quantity + 1,
+      available_quantity: book.available_quantity + 1 // Increase available_quantity too
+    };
+    await axios.put(`/api/books/${book.book_id}`, updatedBook);
+    setBooks(books.map(b => (b.book_id === book.book_id ? updatedBook : b))); // Update the book quantities in the state
+  } catch (err) {
+    setError('Failed to update book quantity');
+  }
+};
+
+// Decrease book quantity (affects both book_quantity and available_quantity)
+const handleDecreaseQuantity = async (book) => {
+  if (book.book_quantity > 0 && book.available_quantity > 0) { // Ensure available_quantity isn't less than 0
     try {
-      const updatedBook = { ...book, book_quantity: book.book_quantity + 1 };
+      const updatedBook = {
+        ...book,
+        book_quantity: book.book_quantity - 1,
+        available_quantity: book.available_quantity - 1 // Decrease available_quantity too
+      };
       await axios.put(`/api/books/${book.book_id}`, updatedBook);
-      setBooks(books.map(b => (b.book_id === book.book_id ? updatedBook : b))); // Update the book quantity in the state
+      setBooks(books.map(b => (b.book_id === book.book_id ? updatedBook : b)));
     } catch (err) {
       setError('Failed to update book quantity');
     }
-  };
+  }
+};
 
-  // Decrease book quantity
-  const handleDecreaseQuantity = async (book) => {
-    if (book.book_quantity > 0) {
-      try {
-        const updatedBook = { ...book, book_quantity: book.book_quantity - 1 };
-        await axios.put(`/api/books/${book.book_id}`, updatedBook);
-        setBooks(books.map(b => (b.book_id === book.book_id ? updatedBook : b)));
-      } catch (err) {
-        setError('Failed to update book quantity');
-      }
-    }
-  };
 
   // Sort books by book_id in ascending order before rendering
   const sortedBooks = books.sort((a, b) => a.book_id - b.book_id);
