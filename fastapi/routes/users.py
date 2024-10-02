@@ -32,6 +32,13 @@ class User(BaseModel):
     password_hash: str
     email: str
     created_at: datetime
+    
+class UserWithBorrowCount(BaseModel):
+    user_id: int
+    username: str
+    email: str
+    total_borrows: Optional[int]
+    
 
 
 # Endpoint to create a new user
@@ -96,5 +103,9 @@ async def get_all_users():
         raise HTTPException(status_code=404, detail="No users found")
     return result
 
-
+# Endpoint to get all users with borrowcount
+@router.get("/users_with_borrow_count", response_model=List[UserWithBorrowCount])
+async def get_all_users_with_borrow_count_endpoint():
+    result = await get_all_users_with_borrow_count()
+    return result
 

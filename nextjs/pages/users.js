@@ -20,7 +20,7 @@ const Users = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('/api/users');
+        const response = await axios.get('/api/users_with_borrow_count');
         setUsers(response.data);
       } catch (err) {
         setError('Failed to fetch users');
@@ -120,6 +120,8 @@ const Users = () => {
             </TableBody>
           </Table>
         </TableContainer>
+
+        
 
         {/* Add User Button */}
         <Button variant="contained" color="primary" onClick={handleClickOpen} sx={{ marginTop: '20px' }}>

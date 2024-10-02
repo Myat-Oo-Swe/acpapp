@@ -66,6 +66,17 @@ async def get_all_users_from_db():
     query = "SELECT * FROM users"
     return await database.fetch_all(query)
 
+# Function to get all users with borrow count
+async def get_all_users_with_borrow_count():
+    query = """
+    SELECT u.user_id, u.username, u.email, COUNT(b.borrow_id) AS total_borrows
+    FROM users u
+    LEFT JOIN borrow b ON u.user_id = b.user_id
+    GROUP BY u.user_id;
+    """
+    return await database.fetch_all(query)
+
+
 # -------------------- BOOK OPERATIONS --------------------
 
 # Function to insert a new book into the books table with genre_id
@@ -198,7 +209,21 @@ async def update_borrow_return_date(borrow_id: int, return_date: Optional[dateti
 
 # Function to select a borrow by borrow_id
 async def get_borrow(borrow_id: int):
-    query = "SELECT * FROM borrow WHERE borrow_id = :borrow_id"
+    query = """
+    SELECT 
+        b.borrow_id, 
+        b.user_id, 
+        u.username,  -- Join to get user_name
+        b.book_id, 
+        bk.book_name,  -- Join to get book_name
+        b.borrow_quantity, 
+        b.borrow_date, 
+        b.return_date
+    FROM borrow b
+    JOIN users u ON b.user_id = u.user_id
+    JOIN books bk ON b.book_id = bk.book_id
+    WHERE borrow_id = :borrow_id
+    """
     return await database.fetch_one(query=query, values={"borrow_id": borrow_id})
 
 # Function to delete a borrow by borrow_id
@@ -206,10 +231,28 @@ async def delete_borrow(borrow_id: int):
     query = "DELETE FROM borrow WHERE borrow_id = :borrow_id RETURNING *"
     return await database.fetch_one(query=query, values={"borrow_id": borrow_id})
 
-# Function to get all borrows
+# # Function to get all borrows
+# async def get_all_borrows_from_db():
+#     query = "SELECT * FROM borrow"
+#     return await database.fetch_all(query)
+
 async def get_all_borrows_from_db():
-    query = "SELECT * FROM borrow"
+    query = """
+    SELECT 
+        b.borrow_id, 
+        b.user_id, 
+        u.username,  -- Join to get user_name
+        b.book_id, 
+        bk.book_name,  -- Join to get book_name
+        b.borrow_quantity, 
+        b.borrow_date, 
+        b.return_date
+    FROM borrow b
+    JOIN users u ON b.user_id = u.user_id
+    JOIN books bk ON b.book_id = bk.book_id
+    """
     return await database.fetch_all(query)
+
 
 async def update_book_quantity_on_borrow(book_id: int, borrow_quantity: int):
     query = """

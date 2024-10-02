@@ -17,10 +17,20 @@ class BorrowUpdate(BaseModel):
     return_date: Optional[datetime]
 
 # Pydantic model for borrow response
+# class Borrow(BaseModel):
+#     borrow_id: int
+#     user_id: int
+#     book_id: int
+#     borrow_quantity: int
+#     borrow_date: datetime
+#     return_date: Optional[datetime]
+
 class Borrow(BaseModel):
     borrow_id: int
     user_id: int
+    username: str  # New field for user_name
     book_id: int
+    book_name: str  # New field for book_name
     borrow_quantity: int
     borrow_date: datetime
     return_date: Optional[datetime]
@@ -33,7 +43,7 @@ class Borrow(BaseModel):
 #         raise HTTPException(status_code=400, detail="Error creating borrow")
 #     return result
 
-@router.post("/borrows/create", response_model=Borrow)
+@router.post("/borrows/create", response_model=BorrowCreate)
 async def create_borrow(borrow: BorrowCreate):
     # Check if enough books are available
     book = await get_book(borrow.book_id)
@@ -59,7 +69,7 @@ async def create_borrow(borrow: BorrowCreate):
 #     return result
 
 
-@router.put("/borrows/{borrow_id}", response_model=Borrow)
+@router.put("/borrows/{borrow_id}", response_model=BorrowUpdate)
 async def update_borrow(borrow_id: int, borrow: BorrowUpdate):
     # Update the return date
     result = await update_borrow_return_date(borrow_id, borrow.return_date)
