@@ -8,7 +8,6 @@ export default function LoginPage() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-
   const router = useRouter();
 
   const handleSnackbarClose = () => {
@@ -18,12 +17,11 @@ export default function LoginPage() {
   const handleLoginSubmit = async (e) => {
     e.preventDefault();
 
-    // Client-side validation
     if (loginEmail.trim() === "" || loginPassword.trim() === "") {
       setSnackbarMessage('Both email and password are required!');
       setSnackbarSeverity('error');
       setOpenSnackbar(true);
-      return; // Prevent submission if fields are empty
+      return;
     }
 
     try {
@@ -48,10 +46,16 @@ export default function LoginPage() {
       setSnackbarSeverity('success');
       setOpenSnackbar(true);
 
-      // Delay the redirection to allow the user to see the success message
+      // Store the logged-in user's info in localStorage
+      localStorage.setItem('userInfo', JSON.stringify({
+        userId: data.user_id,
+        username: data.username,
+        email: data.email
+      }));
+
       setTimeout(() => {
-        router.push('/home');
-      }, 2000); // Redirect after 2 seconds
+        router.push('/myprofile');
+      }, 1000);
     } catch (error) {
       setSnackbarMessage(error.message);
       setSnackbarSeverity('error');
@@ -75,7 +79,7 @@ export default function LoginPage() {
               type="email"
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
-              required // Ensures browser validation is applied
+              required
             />
             <TextField
               fullWidth
@@ -85,7 +89,7 @@ export default function LoginPage() {
               type="password"
               value={loginPassword}
               onChange={(e) => setLoginPassword(e.target.value)}
-              required // Ensures browser validation is applied
+              required
             />
             <Button variant="contained" color="primary" fullWidth style={{ marginTop: '16px' }} type="submit">
               Login

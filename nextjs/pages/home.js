@@ -10,6 +10,7 @@ const HomePage = () => {
   const [openGenres, setOpenGenres] = useState({}); // State to manage open/close genre descriptions
   const [searchTerm, setSearchTerm] = useState(''); // State to store search term
   const [selectedGenres, setSelectedGenres] = useState([]); // State to store selected genres
+  const [cartNotification, setCartNotification] = useState(''); // State for cart notification
 
   // Fetch books from FastAPI backend
   useEffect(() => {
@@ -55,13 +56,25 @@ const HomePage = () => {
   // Filter by genre and toggle selection
   const filterByGenre = (genreName) => {
     setSelectedGenres((prev) => {
-      // If the genre is already selected, remove it; otherwise, add it
       if (prev.includes(genreName)) {
         return prev.filter((genre) => genre !== genreName);
       } else {
         return [...prev, genreName];
       }
     });
+  };
+
+  // Add book to cart and save it in localStorage
+  const addToCart = (book) => {
+    let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    cartItems.push(book);
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    setCartNotification(`${book.book_name} added to cart!`);
+
+    // Hide the notification after 2 seconds
+    setTimeout(() => {
+      setCartNotification('');
+    }, 2000);
   };
 
   // Filter books by search term and selected genres
@@ -87,8 +100,14 @@ const HomePage = () => {
 
       {/* Main content area */}
       <Grid item xs={12} md={9} sx={{ padding: '20px', overflowY: 'auto', height: '100vh' }}>
+        {cartNotification && (
+          <div style={{ color: 'green', marginBottom: '10px' }}>
+            {cartNotification}
+          </div>
+        )}
         <MainContent
           filteredBooks={filteredBooks}
+          addToCart={addToCart} // Pass the addToCart function
         />
       </Grid>
     </Grid>

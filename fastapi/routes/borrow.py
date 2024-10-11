@@ -108,3 +108,11 @@ async def get_all_borrows():
     if not result:
         raise HTTPException(status_code=404, detail="No borrows found")
     return result
+
+# Endpoint to get all borrows for a specific user
+@router.get("/borrows/user/{user_id}", response_model=List[Borrow])
+async def get_borrows_by_user(user_id: int):
+    result = await get_borrows_by_user_from_db(user_id)  # Add this DB function
+    if not result:
+        raise HTTPException(status_code=404, detail="No borrows found for this user")
+    return result

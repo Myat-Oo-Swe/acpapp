@@ -11,15 +11,13 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 
-const MainContent = ({ filteredBooks }) => {
+const MainContent = ({ filteredBooks, addToCart }) => {
   return (
     <Box sx={{ padding: '20px' }}>
-      {/* Title */}
       <Typography variant="h4" sx={{ fontWeight: 'bold', paddingBottom: '20px' }}>
         Our Books Collection
       </Typography>
 
-      {/* Books grid */}
       <Grid container spacing={3}>
         {filteredBooks.length > 0 ? (
           filteredBooks.map((book) => (
@@ -40,11 +38,11 @@ const MainContent = ({ filteredBooks }) => {
                     Available: {book.available_quantity}
                   </Typography>
                   <Typography variant="body2" align="center" sx={{ color: '#888' }}>
-                    {book.genre_name}  {/* Display the genre */}
+                    {book.genre_name}
                   </Typography>
                 </CardContent>
                 <CardActions>
-                  <IconButton aria-label="borrow book" sx={{ margin: 'auto' }}>
+                  <IconButton aria-label="add to cart" sx={{ margin: 'auto' }} onClick={() => addToCart(book)}>
                     <AddIcon />
                   </IconButton>
                 </CardActions>

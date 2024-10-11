@@ -236,6 +236,17 @@ async def delete_borrow(borrow_id: int):
 #     query = "SELECT * FROM borrow"
 #     return await database.fetch_all(query)
 
+async def get_borrows_by_user_from_db(user_id: int):
+    query = """
+    SELECT b.borrow_id, b.user_id, u.username, b.book_id, bk.book_name, b.borrow_quantity, b.borrow_date, b.return_date
+    FROM borrow b
+    JOIN users u ON b.user_id = u.user_id
+    JOIN books bk ON b.book_id = bk.book_id
+    WHERE b.user_id = :user_id
+    """
+    return await database.fetch_all(query, values={"user_id": user_id})
+
+
 async def get_all_borrows_from_db():
     query = """
     SELECT 

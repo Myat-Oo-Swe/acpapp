@@ -1,119 +1,159 @@
-import React from 'react';
-import {
-  Box,
-  Typography,
-  Button,
-  IconButton,
-  Grid,
-  Divider,
-  Card,
-  CardContent,
-  CardMedia,
-  TextField
-} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Grid, CardMedia, CardContent, Button, IconButton, Snackbar, Alert } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import axios from 'axios';  // Ensure axios is imported for making API calls
 
-const CartPage = () => {
-  const cartItems = [
-    {
-      id: 1,
-      name: 'Luxury Handbag',
-      price: 250,
-      image: '/handbag.jpg',
-      quantity: 1,
-    },
-    {
-      id: 2,
-      name: 'Designer Watch',
-      price: 500,
-      image: '/watch.jpg',
-      quantity: 1,
-    },
-  ];
+const CartPage = ({ confirmBorrow }) => {
+  const [cartItems, setCartItems] = useState([]);
+  const [userId, setUserId] = useState(null);
+  const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
 
-  const handleRemoveItem = (id) => {
-    // Remove item logic
+  useEffect(() => {
+    const storedItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const groupedItems = storedItems.reduce((acc, book) => {
+      const existingBook = acc.find(item => item.book_id === book.book_id);
+      if (existingBook) {
+        existingBook.quantity += 1;
+      } else {
+        acc.push({ ...book, quantity: 1 });
+      }
+      return acc;
+    }, []);
+    setCartItems(groupedItems);
+    const storedUserInfo = JSON.parse(localStorage.getItem('userInfo'));
+    if (storedUserInfo) {
+      setUserId(storedUserInfo.userId);
+    }
+  }, []);
+
+  const handleConfirm = async (book) => {
+    try {
+      const response = await axios.post('/api/borrows/create', {
+        user_id: userId,  // Replace with actual user ID from context or state
+        book_id: book.book_id,
+        borrow_quantity: book.quantity,
+      });
+      if (response.data) {
+        setNotification({
+          open: true,
+          message: response.data.message || 'Borrow created successfully!',
+          severity: 'success',
+        });
+        const updatedCart = cartItems.filter(item => item.book_id !== book.book_id);
+        setCartItems(updatedCart);
+        localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+      }
+    } catch (error) {
+      setNotification({
+        open: true,
+        message: error.response?.data?.detail || 'Failed to create borrow',
+        severity: 'error',
+      });
+    }
   };
 
-  const handleQuantityChange = (id, quantity) => {
-    // Update quantity logic
+  const handleRemove = (book) => {
+    const updatedCart = cartItems.filter(item => item.book_id !== book.book_id);
+    setCartItems(updatedCart);
+    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
   };
 
-  const totalPrice = cartItems.reduce(
-    (acc, item) => acc + item.price * item.quantity,
-    0
-  );
+  const handleIncreaseQuantity = (index) => {
+    const updatedCart = [...cartItems];
+    updatedCart[index].quantity += 1;
+    setCartItems(updatedCart);
+    localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+  };
+
+  const handleDecreaseQuantity = (index) => {
+    const updatedCart = [...cartItems];
+    if (updatedCart[index].quantity > 1) {
+      updatedCart[index].quantity -= 1;
+      setCartItems(updatedCart);
+      localStorage.setItem('cartItems', JSON.stringify(updatedCart));
+    } else {
+      handleRemove(updatedCart[index]);
+    }
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({ open: false, message: '', severity: 'success' });
+  };
 
   return (
-    <Box p={4}>
-      <Typography variant="h4" gutterBottom>
-        Shopping Cart
+    <Box sx={{ padding: '20px' }}>
+      <Typography variant="h4" sx={{ fontWeight: 'bold', paddingBottom: '20px' }}>
+        Cart
       </Typography>
 
-      <Grid container spacing={2}>
-        {/* Cart Items Section */}
-        <Grid item xs={12} md={8}>
-          {cartItems.map((item) => (
-            <Card key={item.id} sx={{ display: 'flex', mb: 2 }}>
-              <CardMedia
-                component="img"
-                sx={{ width: 151 }}
-                image={item.image}
-                alt={item.name}
-              />
-              <Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+      {cartItems.length === 0 ? (
+        <Typography variant="body1" align="center">
+          Your cart is empty.
+        </Typography>
+      ) : (
+        <Box>
+          {cartItems.map((book, index) => (
+            <Grid container key={index} spacing={2} sx={{ marginBottom: '20px', alignItems: 'center' }}>
+              <Grid item xs={3}>
+                <CardMedia
+                  component="img"
+                  height="150"
+                  image={book.book_pic || '/default_book_image.png'}
+                  alt={book.book_name}
+                  sx={{ objectFit: 'contain', padding: '10px' }}
+                />
+              </Grid>
+              <Grid item xs={3}>
                 <CardContent>
-                  <Typography variant="h6">{item.name}</Typography>
-                  <Typography variant="body1" color="text.secondary">
-                    Price: ${item.price}
+                  <Typography variant="h6">{book.book_name}</Typography>
+                  <Typography variant="body2" sx={{ color: '#888' }}>
+                    Available: {book.available_quantity}
                   </Typography>
-                  <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
-                    <Typography>Qty:</Typography>
-                    <TextField
-                      type="number"
-                      value={item.quantity}
-                      onChange={(e) => handleQuantityChange(item.id, e.target.value)}
-                      sx={{ width: 60, ml: 2 }}
-                      inputProps={{ min: 1 }}
-                    />
-                  </Box>
+                  <Typography variant="body2" sx={{ color: '#888' }}>
+                    {book.genre_name}
+                  </Typography>
                 </CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', p: 2 }}>
-                  <IconButton onClick={() => handleRemoveItem(item.id)} color="error">
+              </Grid>
+              <Grid item xs={3}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <IconButton onClick={() => handleDecreaseQuantity(index)}>
+                    <RemoveIcon />
+                  </IconButton>
+                  <Typography variant="body1" sx={{ padding: '0 10px' }}>
+                    {book.quantity}
+                  </Typography>
+                  <IconButton onClick={() => handleIncreaseQuantity(index)}>
+                    <AddIcon />
+                  </IconButton>
+                </Box>
+              </Grid>
+              <Grid item xs={3}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleConfirm(book)}
+                    sx={{ marginBottom: '10px' }}
+                  >
+                    Confirm Borrow
+                  </Button>
+                  <IconButton onClick={() => handleRemove(book)} color="error">
                     <DeleteIcon />
                   </IconButton>
                 </Box>
-              </Box>
-            </Card>
+              </Grid>
+            </Grid>
           ))}
-        </Grid>
+        </Box>
+      )}
 
-        {/* Order Summary Section */}
-        <Grid item xs={12} md={4}>
-          <Card sx={{ p: 3 }}>
-            <Typography variant="h6" gutterBottom>
-              Order Summary
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-              <Typography variant="body1">Subtotal</Typography>
-              <Typography variant="body1">${totalPrice.toFixed(2)}</Typography>
-            </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-              <Typography variant="body1">Shipping</Typography>
-              <Typography variant="body1">Free</Typography>
-            </Box>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-              <Typography variant="h6">Total</Typography>
-              <Typography variant="h6">${totalPrice.toFixed(2)}</Typography>
-            </Box>
-            <Button variant="contained" color="primary" fullWidth>
-              Checkout
-            </Button>
-          </Card>
-        </Grid>
-      </Grid>
+      <Snackbar open={notification.open} autoHideDuration={3000} onClose={handleCloseNotification}>
+        <Alert onClose={handleCloseNotification} severity={notification.severity} sx={{ width: '100%' }}>
+          {notification.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -31,7 +31,8 @@ const Borrow = () => {
   const handleReturnBorrow = async (borrow_id) => {
     try {
       // Format the current date without the 'Z' suffix
-      const currentDate = new Date().toISOString().split('.')[0]; // Removes milliseconds and 'Z'
+      const currentDate = new Date().toLocaleString('sv-SE');// Returns 'YYYY-MM-DD HH:mm:ss' in local time
+
   
       // Send PUT request to update the return_date
       const response = await axios.put(`/api/borrows/${borrow_id}`, {
