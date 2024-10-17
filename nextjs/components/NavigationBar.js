@@ -131,7 +131,9 @@ const NavigationLayout = ({ children }) => {
                 'aria-labelledby': 'profile-menu',
               }}
             >
-              <MenuItem onClick={handleMenuClose}>Profile</MenuItem>
+              <MenuItem onClick={handleMenuClose}><Link href="/myprofile" underline="none" sx={{ fontWeight: 500, color: '#fff' }}>
+                  Profile
+                </Link></MenuItem>
               <MenuItem onClick={handleMenuClose}>
                 <Link href="/login" underline="none" sx={{ fontWeight: 500, color: '#fff' }}>
                   Logout

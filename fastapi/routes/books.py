@@ -42,6 +42,30 @@ async def create_book(book: BookCreate):
         raise HTTPException(status_code=400, detail="Error creating book")
     return result
 
+# Endpoint to get total unique books count
+@router.get("/books/unique_count")
+async def get_total_unique_books():
+    total_unique_books = await get_total_unique_books_from_db()
+    if total_unique_books is None:
+        raise HTTPException(status_code=404, detail="No books found")
+    return {"total_unique_books": total_unique_books}
+
+# Endpoint to get total books count
+@router.get("/books/total-count")
+async def get_total_books():
+    total_books = await get_total_books_from_db()
+    if total_books is None:
+        raise HTTPException(status_code=404, detail="No books found")
+    return {"total_books": total_books}
+
+# Endpoint to get available books count
+@router.get("/books/available-count")
+async def get_available_books():
+    available_books = await get_available_books_from_db()
+    if available_books is None:
+        raise HTTPException(status_code=404, detail="No available books found")
+    return {"available_books": available_books}
+
 # Endpoint to get a book by book_id
 @router.get("/books/{book_id}", response_model=Book)
 async def read_book(book_id: int):
@@ -74,3 +98,29 @@ async def get_all_books():
     if not result:
         raise HTTPException(status_code=404, detail="No books found")
     return result
+
+@router.get("/books/genres/count")
+async def get_books_by_genre_count():
+    result = await get_books_by_genre_count_from_db()
+    if not result:
+        raise HTTPException(status_code=404, detail="No books found by genre count")
+    return result
+
+
+# books.py
+
+# Endpoint to get total books count
+@router.get("/books/count", name="get_total_books")
+async def get_total_books():
+    query = "SELECT COUNT(*) FROM books"
+    total_books = await database.fetch_one(query)
+    return {"total_books": total_books[0]}
+
+# Endpoint to get available books count
+@router.get("/books/available-count", name="get_available_books")
+async def get_available_books():
+    query = "SELECT SUM(available_quantity) FROM books"
+    available_books = await database.fetch_one(query)
+    return {"available_books": available_books[0]}
+
+

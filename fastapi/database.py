@@ -35,6 +35,12 @@ async def insert_user(username: str, password_hash: str, email: str):
     values = {"username": username, "password_hash": password_hash, "email": email}
     return await database.fetch_one(query=query, values=values)
 
+# Get total members count
+async def get_total_members_from_db():
+    query = "SELECT COUNT(*) FROM users"
+    result = await database.fetch_one(query)
+    return result[0]
+
 # Function to select a user by user_id from the users table
 async def get_user(user_id: int):
     query = "SELECT * FROM users WHERE user_id = :user_id"
@@ -96,6 +102,24 @@ async def insert_book(book_name: str, book_quantity: int, book_description: Opti
     }
     return await database.fetch_one(query=query, values=values)
 
+# Function to get the total unique books count from the database
+async def get_total_unique_books_from_db():
+    query = "SELECT COUNT(*) FROM books"
+    result = await database.fetch_one(query)
+    return result[0] if result else None
+
+# Function to get the total number of books from the database
+async def get_total_books_from_db():
+    query = "SELECT SUM(book_quantity) FROM books"
+    result = await database.fetch_one(query)
+    return result[0] if result else None
+
+# Function to get the available number of books from the database
+async def get_available_books_from_db():
+    query = "SELECT SUM(available_quantity) FROM books"
+    result = await database.fetch_one(query)
+    return result[0] if result else None
+
 # Function to select a book by book_id from the books table with genre details
 async def get_book(book_id: int):
     query = """
@@ -106,27 +130,6 @@ async def get_book(book_id: int):
     """
     return await database.fetch_one(query=query, values={"book_id": book_id})
 
-# Function to update a book in the books table, including genre_id
-# async def update_book(book_id: int, book_name: Optional[str], book_quantity: Optional[int], book_description: Optional[str], book_pic: Optional[str], genre_id: Optional[int]):
-#     query = """
-#     UPDATE books
-#     SET book_name = COALESCE(:book_name, book_name), 
-#         book_quantity = COALESCE(:book_quantity, book_quantity), 
-#         book_description = COALESCE(:book_description, book_description), 
-#         book_pic = COALESCE(:book_pic, book_pic),
-#         genre_id = COALESCE(:genre_id, genre_id)
-#     WHERE book_id = :book_id
-#     RETURNING book_id, book_name, book_quantity, book_description, book_pic, genre_id
-#     """
-#     values = {
-#         "book_id": book_id,
-#         "book_name": book_name,
-#         "book_quantity": book_quantity,
-#         "book_description": book_description,
-#         "book_pic": book_pic,
-#         "genre_id": genre_id
-#     }
-#     return await database.fetch_one(query=query, values=values)
 
 async def update_book(book_id: int, book_name: str, book_quantity: Optional[int], available_quantity: Optional[int], book_description: Optional[str], book_pic: Optional[str], genre_id: Optional[int]):
     query = """
@@ -165,6 +168,15 @@ async def get_all_books_from_db():
     """
     return await database.fetch_all(query)
 
+async def get_books_by_genre_count_from_db():
+    query = """
+    SELECT g.genre_name, COUNT(b.book_id) as book_count
+    FROM genre g
+    LEFT JOIN books b ON g.genre_id = b.genre_id
+    GROUP BY g.genre_name;
+    """
+    return await database.fetch_all(query)
+
 
 # -------------------- GENRE OPERATIONS --------------------
 
@@ -184,6 +196,7 @@ async def get_genres_with_books_from_db():
     """
     return await database.fetch_all(query)
 
+# -------------------- BORROW OPERATIONS --------------------
 
 # Function to insert a new borrow into the borrows table
 async def insert_borrow(user_id: int, book_id: int, borrow_quantity: int):
@@ -194,6 +207,12 @@ async def insert_borrow(user_id: int, book_id: int, borrow_quantity: int):
     """
     values = {"user_id": user_id, "book_id": book_id, "borrow_quantity": borrow_quantity}
     return await database.fetch_one(query=query, values=values)
+
+# Get total borrows count
+async def get_total_borrows_from_db():
+    query = "SELECT COUNT(*) FROM borrow"
+    result = await database.fetch_one(query)
+    return result[0]
 
 # Function to update the return date of a borrow by borrow_id
 async def update_borrow_return_date(borrow_id: int, return_date: Optional[datetime]):
@@ -231,10 +250,6 @@ async def delete_borrow(borrow_id: int):
     query = "DELETE FROM borrow WHERE borrow_id = :borrow_id RETURNING *"
     return await database.fetch_one(query=query, values={"borrow_id": borrow_id})
 
-# # Function to get all borrows
-# async def get_all_borrows_from_db():
-#     query = "SELECT * FROM borrow"
-#     return await database.fetch_all(query)
 
 async def get_borrows_by_user_from_db(user_id: int):
     query = """
@@ -245,6 +260,31 @@ async def get_borrows_by_user_from_db(user_id: int):
     WHERE b.user_id = :user_id
     """
     return await database.fetch_all(query, values={"user_id": user_id})
+
+
+async def get_weekly_borrowing_from_db():
+    query = """
+    SELECT
+        TO_CHAR(date_trunc('day', borrow_date), 'Day') AS day_of_week,
+        COUNT(*) AS borrow_count
+    FROM
+        borrow
+    GROUP BY
+        TO_CHAR(date_trunc('day', borrow_date), 'Day'),
+        date_trunc('day', borrow_date)
+    ORDER BY
+        date_trunc('day', borrow_date);
+    """
+    try:
+        result = await database.fetch_all(query)
+        # Log the result for debugging
+        print("Database result:", result)
+        return result
+    except Exception as e:
+        print("Error executing query:", e)
+        return None
+
+
 
 
 async def get_all_borrows_from_db():
@@ -284,3 +324,4 @@ async def update_book_quantity_on_return(book_id: int, borrow_quantity: int):
     """
     values = {"book_id": book_id, "borrow_quantity": borrow_quantity}
     return await database.fetch_one(query=query, values=values)
+

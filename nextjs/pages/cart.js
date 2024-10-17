@@ -89,10 +89,19 @@ const CartPage = ({ confirmBorrow }) => {
       </Typography>
 
       {cartItems.length === 0 ? (
-        <Typography variant="body1" align="center">
-          Your cart is empty.
-        </Typography>
-      ) : (
+  <Box textAlign="center">
+    <Typography variant="body1" align="center" gutterBottom>
+      Your cart is empty.
+    </Typography>
+    <Button
+      variant="contained"
+      color="primary"
+      onClick={() => window.location.href = '/home'}  // Redirect to Home.js
+    >
+      Borrow some books
+    </Button>
+  </Box>
+)  : (
         <Box>
           {cartItems.map((book, index) => (
             <Grid container key={index} spacing={2} sx={{ marginBottom: '20px', alignItems: 'center' }}>

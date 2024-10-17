@@ -1,182 +1,87 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Grid,
-  Box,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  Collapse,
-  IconButton,
-  Card,
-  CardMedia,
-  CardContent,
-  CardActions,
-  TextField,
-  InputAdornment,
-} from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import SearchIcon from '@mui/icons-material/Search';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import axios from 'axios'; // Using axios to fetch data
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { Grid, Card, Typography, CircularProgress } from "@mui/material";
+import useBearStore from '../store/useBearStore'; // Correct import for default export
+// Assuming Zustand is used for global state management
 
-const HomePage = () => {
-  const [books, setBooks] = useState([]); // State to store books data
-  const [genres, setGenres] = useState([]); // State to store genres
-  const [openGenres, setOpenGenres] = useState({}); // State to manage open/close genre descriptions
-  const [searchTerm, setSearchTerm] = useState(''); // State to store search term
+const Dashboard = () => {
+  const [totalBooks, setTotalBooks] = useState(null);
+  const [totalUsers, setTotalUsers] = useState(null);
+  const [totalBorrows, setTotalBorrows] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const appName = useBearStore((state) => state.appName); // Example from Zustand
 
-  // Fetch books from FastAPI backend
+  // Fetch data for dashboard
   useEffect(() => {
-    const fetchBooks = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get('api/books'); // Adjust this URL as per your setup
-        setBooks(response.data); // Store the fetched books
+        setLoading(true);
+
+        // Fetch total books count
+        const booksResponse = await axios.get("/api/books");
+        setTotalBooks(booksResponse.data.length);
+
+        // Fetch total users count
+        const usersResponse = await axios.get("/api/users");
+        setTotalUsers(usersResponse.data.length);
+
+        // Fetch total borrow transactions
+        const borrowsResponse = await axios.get("/api/borrows");
+        setTotalBorrows(borrowsResponse.data.length);
+
+        setLoading(false);
       } catch (error) {
-        console.error('Error fetching books:', error);
+        console.error("Error fetching data:", error);
+        setLoading(false);
       }
     };
 
-    fetchBooks();
+    fetchData();
   }, []);
-
-  // Fetch genres from FastAPI backend
-  useEffect(() => {
-    const fetchGenres = async () => {
-      try {
-        const response = await axios.get('api/genres-with-books'); // Adjust this URL as per your setup
-        setGenres(response.data); // Store the fetched genres
-        const initialOpenState = {};
-        response.data.forEach((genre) => {
-          initialOpenState[genre.genre_name] = false; // Initially close all genres
-        });
-        setOpenGenres(initialOpenState);
-      } catch (error) {
-        console.error('Error fetching genres:', error);
-      }
-    };
-
-    fetchGenres();
-  }, []);
-
-  // Toggle genre description visibility
-  const handleToggleGenre = (genreName) => {
-    setOpenGenres((prev) => ({
-      ...prev,
-      [genreName]: !prev[genreName],
-    }));
-  };
-
-  // Filter books by search term
-  const filteredBooks = books.filter((book) =>
-    book.book_name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   return (
-    <Grid container>
-      {/* Sidebar */}
-      <Grid item xs={12} md={3} sx={{ padding: '20px' }}>
-        <Box sx={{ position: 'sticky', top: '90px', borderRight: '1px solid #ddd', paddingRight: '20px' }}>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', paddingBottom: '10px' }}>
-            Genres
-          </Typography>
-          <List>
-            {genres.map((genre) => (
-              <React.Fragment key={genre.genre_id}>
-                <ListItem button onClick={() => handleToggleGenre(genre.genre_name)}>
-                  <ListItemText primary={genre.genre_name} />
-                  {openGenres[genre.genre_name] ? <ExpandLess /> : <ExpandMore />}
-                </ListItem>
-                <Collapse in={openGenres[genre.genre_name]} timeout="auto" unmountOnExit>
-                  <List component="div" disablePadding>
-                    {/* Display book names under each genre */}
-                    {genre.books.length > 0 ? (
-                      genre.books.map((book) => (
-                        <ListItem key={book.book_id}>
-                          <ListItemText inset primary={book.book_name} />
-                        </ListItem>
-                      ))
-                    ) : (
-                      <ListItem>
-                        <ListItemText inset primary="No books available" />
-                      </ListItem>
-                    )}
-                  </List>
-                </Collapse>
-              </React.Fragment>
-            ))}
-          </List>
-        </Box>
-      </Grid>
+    <div style={{ padding: "20px" }}>
+      <Typography variant="h4" gutterBottom>
+        Welcome to {appName} Dashboard
+      </Typography>
 
-      {/* Main content area */}
-      <Grid item xs={12} md={9} sx={{ padding: '20px' }}>
-        {/* Search bar */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', paddingBottom: '20px' }}>
-          <TextField
-            variant="outlined"
-            fullWidth
-            placeholder="Search A Book"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-            sx={{ maxWidth: '600px' }}
-          />
-        </Box>
-
-        {/* Title */}
-        <Typography variant="h4" sx={{ fontWeight: 'bold', paddingBottom: '20px' }}>
-          Our Books Collection
-        </Typography>
-
-        {/* Books grid */}
+      {loading ? (
+        <CircularProgress />
+      ) : (
         <Grid container spacing={3}>
-          {filteredBooks.length > 0 ? (
-            filteredBooks.map((book) => (
-              <Grid item xs={12} sm={6} md={4} key={book.book_id}>
-                <Card sx={{ borderRadius: '10px' }}>
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={book.book_pic || '/default_book_image.png'} // Use default image if book_pic is not available
-                    alt={book.book_name}
-                    sx={{ objectFit: 'contain', padding: '10px' }}
-                  />
-                  <CardContent>
-                    <Typography variant="h6" align="center">
-                      {book.book_name}
-                    </Typography>
-                    <Typography variant="body2" align="center" sx={{ color: '#888' }}>
-                      Available: {book.book_quantity}
-                    </Typography>
-                    <Typography variant="body2" align="center" sx={{ color: '#888' }}>
-                      {book.genre_name}  {/* Display the genre */}
-                    </Typography>
-                  </CardContent>
-                  <CardActions>
-                    <IconButton aria-label="borrow book" sx={{ margin: 'auto' }}>
-                      <AddIcon />
-                    </IconButton>
-                  </CardActions>
-                </Card>
-              </Grid>
-            ))
-          ) : (
-            <Typography variant="body1" align="center">
-              No books found.
-            </Typography>
-          )}
+          {/* Total Books */}
+          <Grid item xs={12} sm={4}>
+            <Card sx={{ padding: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Total Books
+              </Typography>
+              <Typography variant="h3">{totalBooks}</Typography>
+            </Card>
+          </Grid>
+
+          {/* Total Users */}
+          <Grid item xs={12} sm={4}>
+            <Card sx={{ padding: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Total Users
+              </Typography>
+              <Typography variant="h3">{totalUsers}</Typography>
+            </Card>
+          </Grid>
+
+          {/* Total Borrows */}
+          <Grid item xs={12} sm={4}>
+            <Card sx={{ padding: 3 }}>
+              <Typography variant="h6" gutterBottom>
+                Total Borrow Transactions
+              </Typography>
+              <Typography variant="h3">{totalBorrows}</Typography>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
-    </Grid>
+      )}
+    </div>
   );
 };
 
-export default HomePage;
+export default Dashboard;

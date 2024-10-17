@@ -1,6 +1,5 @@
-// nextjs/components/BooksByGenresChart.js
 import React from 'react';
-import { Box, Paper, Typography } from '@mui/material';
+import { Paper, Typography } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 
 const BooksByGenresChart = ({ data }) => {
@@ -11,7 +10,7 @@ const BooksByGenresChart = ({ data }) => {
       </Typography>
       <BarChart
         series={data.series}
-        height={250}
+        height={400}  // Increased height
         xAxis={[data.xAxis]}
         margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
       />

@@ -10,4 +10,6 @@ const useBearStore = create((set) => ({
   setAppName: (state) => set({ appName: state })
 }));
 
+
+
 export default useBearStore;

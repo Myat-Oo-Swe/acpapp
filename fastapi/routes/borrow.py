@@ -58,15 +58,43 @@ async def create_borrow(borrow: BorrowCreate):
     else:
         raise HTTPException(status_code=400, detail="Not enough books available")
 
+# Endpoint to get total borrows count
+@router.get("/borrows/count")
+async def get_total_borrows():
+    total_borrows = await get_total_borrows_from_db()
+    return {"total_borrows": total_borrows}
 
+# Endpoint to get borrowing counts for each day of the week
+@router.get("/borrows/weekly-stats")
+async def get_weekly_borrowing_stats():
+    try:
+        weekly_borrowing = await get_weekly_borrowing_from_db()
+        if not weekly_borrowing:
+            raise HTTPException(status_code=404, detail="No borrowing data found")
 
-# Endpoint to update the return date of a borrow by borrow_id
-# @router.put("/borrows/{borrow_id}", response_model=Borrow)
-# async def update_borrow(borrow_id: int, borrow: BorrowUpdate):
-#     result = await update_borrow_return_date(borrow_id, borrow.return_date)
-#     if result is None:
-#         raise HTTPException(status_code=404, detail="Borrow not found")
-#     return result
+        # Initialize a dictionary to hold borrow counts for each day
+        days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+        borrowing_stats = {day: 0 for day in days_of_week}
+
+        # Log the fetched data to verify it
+        print(f"Weekly borrowing data fetched: {weekly_borrowing}")
+
+        # Iterate over the results and sum borrowings for each day
+        for entry in weekly_borrowing:
+            borrow_day = entry["day_of_week"].strip()  # Strip to handle spaces
+            # Ensure proper casing and mapping
+            borrow_day = borrow_day.capitalize()
+            if borrow_day in borrowing_stats:
+                borrowing_stats[borrow_day] = entry["borrow_count"]
+
+        # Return structured data suitable for chart rendering
+        return {
+            "series": [{"label": "Books", "data": [borrowing_stats[day] for day in days_of_week]}],
+            "xAxis": {"data": days_of_week, "scaleType": "band"}
+        }
+    except Exception as e:
+        print(f"Error fetching weekly borrowing stats: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
 
 
 @router.put("/borrows/{borrow_id}", response_model=BorrowUpdate)
@@ -116,3 +144,5 @@ async def get_borrows_by_user(user_id: int):
     if not result:
         raise HTTPException(status_code=404, detail="No borrows found for this user")
     return result
+
+
