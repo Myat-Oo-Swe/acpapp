@@ -68,10 +68,10 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <Box sx={{ display: 'flex', height: '100vh' }}>
+    <div sx={{ display: 'flex', padding: '20px', flexGrow: 1 }}>
       <Sidebar />
 
-      <Box sx={{ flexGrow: 1, marginLeft: '200px', padding: '20px' }}>
+      <Box sx={{ marginLeft: '240px', padding: '20px', flexGrow: 1 }}>
         {/* Summary Cards */}
         <Grid container spacing={2}>
           <Grid item xs={6} sm={4} md={2}>
@@ -102,6 +102,6 @@ export default function Dashboard() {
           </Grid>
         </Grid>
       </Box>
-    </Box>
+    </div>
   );
 }

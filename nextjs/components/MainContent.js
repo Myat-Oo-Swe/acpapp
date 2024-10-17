@@ -13,7 +13,7 @@ import AddIcon from '@mui/icons-material/Add';
 
 const MainContent = ({ filteredBooks, addToCart }) => {
   return (
-    <Box sx={{ padding: '20px' }}>
+    <Box>
       <Typography variant="h4" sx={{ fontWeight: 'bold', paddingBottom: '20px' }}>
         Our Books Collection
       </Typography>

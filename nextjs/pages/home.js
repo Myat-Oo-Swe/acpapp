@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Grid } from '@mui/material';
 import axios from 'axios';
-import Sidebar from '../components/Sidebar';
+import Sidebar from '../components/HomeSidebar';
 import MainContent from '../components/MainContent';
 
 const HomePage = () => {

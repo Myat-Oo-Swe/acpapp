@@ -120,11 +120,10 @@ const handleDecreaseQuantity = async (book) => {
   if (error) return <Typography color="error">{error}</Typography>;
 
   return (
-    <Grid container>
+    
+    <div sx={{ display: 'flex', padding: '20px', flexGrow: 1 }}>
       {/* Sidebar */}
-      <Grid item xs={2} style={{ height: '100vh', position: 'fixed', overflowY: 'auto' }}>
-        <Sidebar />
-      </Grid>
+      <Sidebar />
 
       {/* Main Content */}
       <Grid item xs={10} style={{ marginLeft: '16.67%', padding: '20px' }}> {/* Set margin to accommodate the sidebar width */}
@@ -240,7 +239,7 @@ const handleDecreaseQuantity = async (book) => {
           </Dialog>
         </Container>
       </Grid>
-    </Grid>
+    </div>
   );
 };
 

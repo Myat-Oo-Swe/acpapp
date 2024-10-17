@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
-  Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Box, Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, IconButton
 } from '@mui/material';
 import Sidebar from '../components/dashboard/Sidebar'; // Assuming Sidebar exists
@@ -59,11 +59,11 @@ const Borrow = () => {
   if (error) return <Typography color="error">{error}</Typography>;
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div sx={{ display: 'flex', padding: '20px', flexGrow: 1 }}>
       {/* Sidebar */}
       <Sidebar />
 
-      <Container sx={{ marginLeft: '200px', paddingTop: '20px' }}>
+      <Box sx={{ marginLeft: '240px', padding: '20px', flexGrow: 1 }}>
         <Typography variant="h4" gutterBottom>
           Borrow Records
         </Typography>
@@ -109,7 +109,7 @@ const Borrow = () => {
             </TableBody>
           </Table>
         </TableContainer>
-      </Container>
+      </Box>
     </div>
   );
 };

@@ -98,6 +98,7 @@ async def login_user(user: UserLogin):
         "user_id": db_user.user_id,
         "username": db_user.username,
         "email": db_user.email,
+        "role_id": db_user.role_id,
         "created_at": db_user.created_at,
     }
 

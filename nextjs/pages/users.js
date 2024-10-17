@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import {
-  Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Container, Typography, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Button, TextField, Dialog, DialogActions, DialogContent, DialogTitle, IconButton
 } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -81,11 +81,11 @@ const Users = () => {
   if (error) return <Typography color="error">{error}</Typography>;
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div sx={{ display: 'flex', padding: '20px', flexGrow: 1 }}>
       {/* Sidebar */}
       <Sidebar />
 
-      <Container sx={{ marginLeft: '200px', paddingTop: '20px' }}>
+      <Box sx={{ marginLeft: '240px', padding: '20px', flexGrow: 1 }}>
         <Typography variant="h4" gutterBottom>
           Current Users
         </Typography>
@@ -179,7 +179,7 @@ const Users = () => {
             </Button>
           </DialogActions>
         </Dialog>
-      </Container>
+      </Box>
     </div>
   );
 };

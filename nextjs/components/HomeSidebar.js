@@ -4,7 +4,7 @@ import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import SearchIcon from '@mui/icons-material/Search';
 
-const Sidebar = ({ genres, openGenres, handleToggleGenre, filterByGenre, selectedGenres, searchTerm, setSearchTerm }) => {
+const HomeSidebar = ({ genres, openGenres, handleToggleGenre, filterByGenre, selectedGenres, searchTerm, setSearchTerm }) => {
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Fixed search bar */}
@@ -81,4 +81,4 @@ const Sidebar = ({ genres, openGenres, handleToggleGenre, filterByGenre, selecte
   );
 };
 
-export default Sidebar;
+export default HomeSidebar;

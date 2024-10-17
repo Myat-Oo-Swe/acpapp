@@ -82,7 +82,7 @@ export default function Report() {
   };
 
   return (
-    <Box sx={{ display: 'flex', padding: '20px', flexGrow: 1 }}>
+    <div sx={{ display: 'flex', padding: '20px', flexGrow: 1 }}>
       {/* Sidebar */}
       <Sidebar />
 
@@ -181,6 +181,6 @@ export default function Report() {
           )}
         </Paper>
       </Box>
-    </Box>
+    </div>
   );
 }
